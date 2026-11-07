@@ -46,10 +46,3 @@ python3 -m http.server 8000
 ```
 
 Then open http://localhost:8000 in your browser.
-
-## Credits
-
-Developed for YumePoly, Programming Boot Camp (PBC), Institute of Science Tokyo.
-
-- **AR Demo Development:** Jie Feng
-- **3D Sample Model:** Numan Amri Maliky

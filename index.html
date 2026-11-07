@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YumePoly · AR to Print Decision Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<style>
+:root{--ink:#3b2d5c;--soft:#7a6c9b;--purple:#8e6cf0;--pink:#ff8fc2;--blue:#7cc7f5;--mint:#9be3c4;--amber:#ffc46b;--card:rgba(255,255,255,.78)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Nunito",system-ui,sans-serif;color:var(--ink);background:linear-gradient(160deg,#ece3ff 0%,#ffe4f2 50%,#dff2ff 100%) fixed;min-height:100vh}
+button{font:inherit;cursor:pointer;border:0}
+button:focus-visible{outline:3px solid var(--purple);outline-offset:2px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px clamp(16px,4vw,48px);flex-wrap:wrap}
+.logo{font-weight:900;font-size:1.6rem;letter-spacing:.01em;background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.slogan{color:var(--soft);font-weight:700;font-size:.95rem}
+.flow{display:flex;gap:6px;flex-wrap:wrap;font-size:.78rem;font-weight:700}
+.flow span{padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.55);color:var(--soft)}
+.flow .on{background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff}
+main{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;padding:0 clamp(16px,4vw,48px) 48px;max-width:1280px;margin:0 auto}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+.card{background:var(--card);backdrop-filter:blur(10px);border-radius:28px;padding:20px;box-shadow:0 12px 40px rgba(142,108,240,.16)}
+h2{margin:0 0 12px;font-size:1.1rem}
+.stage{position:relative;padding:10px;position:sticky;top:12px;align-self:start}
+@media(max-width:860px){.stage{position:relative;top:0}}
+model-viewer{width:100%;height:min(66vh,580px);border-radius:22px;background:radial-gradient(circle at 50% 35%,#fff 0%,#f3eaff 60%,#e6f4ff 100%);--poster-color:transparent}
+@media(max-width:860px){model-viewer{height:52vh}}
+.badge{position:absolute;left:24px;top:24px;background:#fff;border-radius:18px;padding:8px 16px;font-weight:900;font-size:1.25rem;box-shadow:0 6px 18px rgba(142,108,240,.2);pointer-events:none}
+.badge small{display:block;font-size:.7rem;color:var(--soft);font-weight:700}
+.arbtn{position:absolute;right:20px;bottom:20px;background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff;font-weight:900;padding:13px 22px;border-radius:99px;box-shadow:0 8px 22px rgba(142,108,240,.45)}
+.arnote{margin:10px 6px 2px;font-size:.82rem;color:var(--soft)}
+.bar{height:6px;border-radius:9px;background:rgba(142,108,240,.15);overflow:hidden;margin:8px 6px 0}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--pink));transition:width .2s}
+.sizes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.size{background:#fff;border-radius:20px;padding:12px 6px;color:var(--ink);font-weight:900;font-size:1.3rem;box-shadow:0 4px 12px rgba(142,108,240,.12);transition:transform .15s,background .2s}
+.size small{display:block;font-size:.72rem;color:var(--soft);font-weight:700}
+.size:hover{transform:translateY(-2px)}
+.size[aria-pressed=true]{background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff}.size[aria-pressed=true] small{color:#fff}
+.cta{display:block;width:100%;margin-top:14px;padding:14px;border-radius:99px;font-weight:900;font-size:1rem;color:#fff;background:linear-gradient(90deg,var(--blue),var(--purple))}
+.cta:disabled{opacity:.45;cursor:not-allowed}
+.stack{display:grid;gap:18px;align-content:start}
+.sim{display:inline-block;background:#fff4d9;color:#8a5a00;font-weight:900;font-size:.78rem;padding:6px 12px;border-radius:99px;margin-bottom:12px}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;background:#fff;border-radius:18px;padding:12px 14px;margin-top:8px;animation:pop .35s ease}
+.row b{display:block}.row span{font-size:.85rem;color:var(--soft)}
+.dot{width:14px;height:14px;border-radius:50%;margin-top:5px}
+.tag{font-size:.75rem;font-weight:900;padding:4px 10px;border-radius:99px}
+.warn .dot{background:var(--pink)}.warn .tag{background:#ffe0ee;color:#b42a6c}
+.watch .dot{background:var(--amber)}.watch .tag{background:#fff0d0;color:#8a5a00}
+.ok .dot{background:var(--mint)}.ok .tag{background:#dcf7ec;color:#1d7a55}
+.verdict{display:flex;justify-content:space-between;align-items:center;font-weight:900}
+.tutor{display:grid;grid-template-columns:64px 1fr;gap:12px;animation:pop .4s ease}
+.bubble{background:#fff;border-radius:6px 22px 22px 22px;padding:14px 16px;line-height:1.55;font-size:.95rem}
+.bubble em{display:block;margin-top:8px;font-size:.75rem;color:var(--soft);font-style:normal}
+.learn{margin-top:8px;background:#f1eaff;border-radius:16px;padding:10px 12px;font-size:.88rem;line-height:1.55}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;grid-column:1/-1}
+.acts button{padding:10px 16px;border-radius:99px;font-weight:900;background:#fff;color:var(--purple);box-shadow:0 3px 10px rgba(142,108,240,.15)}
+.acts .p{background:var(--purple);color:#fff}
+.confirm{background:linear-gradient(90deg,var(--pink),var(--purple))}
+.done{text-align:center}.done h1{font-size:clamp(1.4rem,3.5vw,2rem);margin:6px 0 8px;line-height:1.25}
+.chip{display:inline-block;background:#fff;border-radius:99px;padding:8px 18px;font-weight:900;margin:6px 0 12px}
+.ghost{background:none;color:var(--purple);font-weight:900;padding:10px;margin-top:6px}
+[hidden]{display:none!important}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">YumePoly</div><div class="slogan">Everyone Can Be an Artist</div></div>
+  <div class="flow" aria-label="Product flow"><span>Text-to-3D</span><span class="on">AR Preview</span><span class="on">Printability Check</span><span class="on">AI Tutor</span><span>3D Printing</span></div>
+</header>
+
+<main>
+  <section class="card stage" aria-label="3D preview">
+    <model-viewer id="mv" alt="Cute capybara 3D model by Numan"
+      camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="2500"
+      shadow-intensity="1" exposure="0.9" interaction-prompt="auto"
+      ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed" ar-placement="floor" xr-environment>
+      <button slot="ar-button" class="arbtn">📱 View in AR</button>
+    </model-viewer>
+    <div class="badge" id="badge"><small>Print height</small><span id="cm">10 cm</span></div>
+    <div class="bar" id="bar"><i id="barfill"></i></div>
+    <p class="arnote" id="arnote">Drag to rotate · pinch or scroll to zoom. Model: cute-capybara.glb by Numan.</p>
+  </section>
+
+  <div class="stack">
+    <section class="card" id="sizeCard">
+      <h2>1 · Pick a print size</h2>
+      <div class="sizes" id="sizes"></div>
+      <p class="arnote" id="sizeHint"></p>
+      <button class="cta" id="checkBtn">Check Printability</button>
+    </section>
+
+    <section class="card" id="report" hidden aria-live="polite">
+      <div class="sim">Simulated Analysis · For Demo Purposes Only</div>
+      <div class="verdict"><h2 style="margin:0">2 · Printability report</h2><span class="tag" id="vtag"></span></div>
+      <div id="rows"></div>
+    </section>
+
+    <section class="card" id="tutorCard" hidden aria-live="polite">
+      <h2>3 · AI Tutor</h2>
+      <div class="tutor">
+        <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><circle cx="32" cy="34" r="26" fill="#c9b5ff"/><ellipse cx="14" cy="14" rx="8" ry="9" fill="#b49cf5"/><ellipse cx="50" cy="14" rx="8" ry="9" fill="#b49cf5"/><circle cx="23" cy="32" r="4" fill="#3b2d5c"/><circle cx="41" cy="32" r="4" fill="#3b2d5c"/><circle cx="24.5" cy="30.5" r="1.3" fill="#fff"/><circle cx="42.5" cy="30.5" r="1.3" fill="#fff"/><ellipse cx="16" cy="40" rx="5" ry="3.2" fill="#ff8fc2" opacity=".7"/><ellipse cx="48" cy="40" rx="5" ry="3.2" fill="#ff8fc2" opacity=".7"/><path d="M27 42q5 5 10 0" stroke="#3b2d5c" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+        <div class="bubble"><span id="tutorMsg"></span><div class="learn" id="learn" hidden></div><em>Tutor advice is based on simulated demo data, not a real AI analysis of your model.</em></div>
+        <div class="acts" id="acts"></div>
+      </div>
+      <button class="cta confirm" id="confirmBtn">Confirm My Design</button>
+    </section>
+
+    <section class="card done" id="done" hidden>
+      <div style="font-size:2rem">🎉</div>
+      <h1>Your Creation Is Ready for the Next Step!</h1>
+      <div class="chip" id="summary"></div>
+      <p class="arnote">Selected for this demo only. No STL file has been generated and nothing has been sent to a printer.</p>
+      <button class="ghost" id="backBtn">← Edit my design</button>
+    </section>
+  </div>
+</main>
+
+<script>
+const MODEL = 'cute-capybara.glb';   // swap the model by replacing this file (same name)
+const FALLBACK_H = 1.9005935;        // used only if the GLB height cannot be read automatically
+let BASE_H = null;                   // model height in metres, measured from the GLB itself
+async function measureHeight(url){
+  try{
+    let buf = await (await fetch(url,{headers:{Range:'bytes=0-262143'}})).arrayBuffer(), dv = new DataView(buf);
+    if(dv.getUint32(0,true)!==0x46546C67) return null;
+    const jl = dv.getUint32(12,true);
+    if(20+jl>buf.byteLength){ buf = await (await fetch(url)).arrayBuffer(); }
+    const j = JSON.parse(new TextDecoder().decode(new Uint8Array(buf,20,jl)));
+    const mul=(a,b)=>{const o=new Array(16).fill(0);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o};
+    const local=n=>{ if(n.matrix) return n.matrix; const [x,y,z,w]=n.rotation||[0,0,0,1],[sx,sy,sz]=n.scale||[1,1,1],[tx,ty,tz]=n.translation||[0,0,0];
+      return [(1-2*(y*y+z*z))*sx,(2*(x*y+z*w))*sx,(2*(x*z-y*w))*sx,0,(2*(x*y-z*w))*sy,(1-2*(x*x+z*z))*sy,(2*(y*z+x*w))*sy,0,(2*(x*z+y*w))*sz,(2*(y*z-x*w))*sz,(1-2*(x*x+y*y))*sz,0,tx,ty,tz,1]; };
+    let lo=Infinity, hi=-Infinity;
+    const walk=(i,pm)=>{ const n=j.nodes[i], m=mul(pm,local(n));
+      if(n.mesh!==undefined) for(const p of j.meshes[n.mesh].primitives){ const a=j.accessors[p.attributes.POSITION];
+        if(a&&a.min&&a.max) for(let q=0;q<8;q++){ const v=[q&1?a.max[0]:a.min[0],q&2?a.max[1]:a.min[1],q&4?a.max[2]:a.min[2]];
+          const yy=m[1]*v[0]+m[5]*v[1]+m[9]*v[2]+m[13]; lo=Math.min(lo,yy); hi=Math.max(hi,yy); } }
+      (n.children||[]).forEach(c=>walk(c,m)); };
+    const I4=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
+    (j.scenes[j.scene||0].nodes||[]).forEach(i=>walk(i,I4));
+    const h=hi-lo; return h>0.001&&isFinite(h)?h:null;
+  }catch(e){ return null; }
+}
+const mv = document.getElementById('mv');
+const $ = id => document.getElementById(id);
+const DATA = {
+  5:{tag:'Needs care',lvl:'warn',use:'Desk charm size',
+    rows:[['Thin walls','warn','Risk','Ears and paws could get very thin at this size.'],['Small details','warn','Risk','Face and fur details may be hard to print clearly.'],['Material & time','ok','Low','Quick and inexpensive to print.']],
+    tutor:"You chose 5 cm, which could be a nice size for your desk! However, some small details might be difficult to print at this size. Would you like to try 10 cm instead?",
+    alt:10,
+    more:"Printers can only make features down to a certain thickness. When a model shrinks, thin parts like ears and paws shrink too, and can end up fragile or fuzzy. A bigger size gives those parts more thickness to work with."},
+  10:{tag:'Looking good',lvl:'ok',use:'Desk buddy size',
+    rows:[['Thin walls','ok','Low','Lower thin-wall risk than 5 cm.'],['Small details','watch','Check','Some details may still need a closer look.'],['Material & time','ok','Medium','A balanced amount of material and time.']],
+    tutor:"10 cm looks like a lovely balance! Thin parts are less of a worry, and it's still small enough for a desk. A few tiny details might still need a quick look. Keep 10 cm, or peek at 15 cm?",
+    alt:15,
+    more:"At 10 cm, most parts are thick enough to print well, while the cost stays moderate. It is often a good starting point for beginners. If you love the tiny details, a larger size gives them more room."},
+  15:{tag:'Detail friendly',lvl:'ok',use:'Display piece size',
+    rows:[['Thin walls','ok','Low','Thin parts have more room to be reproduced.'],['Small details','ok','Good','Fine details may be easier to reproduce.'],['Material & time','watch','Higher','Needs more material and a longer print.']],
+    tutor:"Wow, 15 cm gives your capybara lots of room for details! It will use more material and take longer to print, though. Do you have the space and budget? You can always go back to 10 cm.",
+    alt:10,
+    more:"Bigger prints capture more detail, but the printer needs more material and more hours. Before choosing 15 cm, think about where it will sit and how much you want to spend."}
+};
+let size = 10, checked = false, kept = false;
+
+function setScale(){ if(!BASE_H) return; const s = size/100/BASE_H; mv.scale = `${s} ${s} ${s}`; }
+function render(){
+  $('cm').textContent = size+' cm';
+  document.querySelectorAll('.size').forEach(b=>b.setAttribute('aria-pressed', +b.dataset.s===size));
+  $('sizeHint').textContent = `${DATA[size].use}. The AR model is scaled to ${size} cm tall.`;
+  setScale();
+  $('report').hidden = $('tutorCard').hidden = !checked;
+  if(!checked) return;
+  const d = DATA[size];
+  $('vtag').className = 'tag '+(d.lvl==='warn'?'warn':'ok'); $('vtag').textContent = d.tag;
+  $('rows').innerHTML = d.rows.map(r=>`<div class="row ${r[1]}"><i class="dot"></i><div><b>${r[0]}</b><span>${r[3]}</span></div><span class="tag">${r[2]}</span></div>`).join('');
+  $('tutorMsg').textContent = kept ? `Great choice! ${size} cm it is. When you're ready, confirm your design below.` : d.tutor;
+  $('learn').hidden = true;
+  $('acts').innerHTML = `<button class="p" data-a="try">Try ${d.alt} cm</button><button data-a="keep">Keep ${size} cm</button><button data-a="more">Learn More</button>`;
+}
+function pick(s, check){ size = s; kept = false; if(check) checked = true; else checked = false; render(); }
+
+$('sizes').innerHTML = [5,10,15].map(s=>`<button class="size" data-s="${s}" aria-pressed="false">${s} cm<small>${DATA[s].use.replace(' size','')}</small></button>`).join('');
+$('sizes').onclick = e => { const b = e.target.closest('.size'); if(b) pick(+b.dataset.s, false); };
+$('checkBtn').onclick = () => { checked = true; kept = false; render(); $('report').scrollIntoView({behavior:'smooth',block:'nearest'}); };
+$('acts').onclick = e => {
+  const a = e.target.dataset.a; if(!a) return;
+  if(a==='try') pick(DATA[size].alt, true);
+  if(a==='keep'){ kept = true; $('tutorMsg').textContent = `Great choice! ${size} cm it is. When you're ready, confirm your design below.`; }
+  if(a==='more'){ const l = $('learn'); l.textContent = DATA[size].more; l.hidden = !l.hidden; }
+};
+$('confirmBtn').onclick = () => {
+  $('summary').textContent = `Cute Capybara · ${size} cm tall`;
+  ['sizeCard','report','tutorCard'].forEach(i=>$(i).hidden = true); $('done').hidden = false;
+  mv.autoRotate = true; window.scrollTo({top:0,behavior:'smooth'});
+};
+$('backBtn').onclick = () => { $('done').hidden = true; $('sizeCard').hidden = false; render(); };
+
+mv.addEventListener('progress', e => { $('barfill').style.width = (e.detail.totalProgress*100)+'%'; if(e.detail.totalProgress>=1) setTimeout(()=>$('bar').hidden=true,400); });
+mv.addEventListener('load', () => {
+  setScale();
+  $('arnote').textContent = mv.canActivateAR
+    ? 'AR is available on this device. Tap View in AR, then point at the floor or a table.'
+    : 'AR is not available on this device or connection, so you are seeing the 3D preview. Open this page over HTTPS on a phone for AR.';
+});
+mv.addEventListener('error', () => { $('arnote').textContent = 'The model could not be loaded. Make sure cute-capybara.glb sits next to index.html and open the page through a web server, not file://.'; $('bar').hidden = true; });
+render();
+measureHeight(MODEL).then(h=>{ BASE_H = h || FALLBACK_H; mv.src = MODEL; setScale(); window.__baseH = BASE_H; });
+</script>
+</body>
+</html>

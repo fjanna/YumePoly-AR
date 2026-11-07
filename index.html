@@ -120,30 +120,11 @@ model-viewer{width:100%;height:min(66vh,580px);border-radius:22px;background:rad
 </main>
 
 <script>
-const MODEL = 'cute-capybara.glb';   // swap the model by replacing this file (same name)
-const FALLBACK_H = 1.9005935;        // used only if the GLB height cannot be read automatically
-let BASE_H = null;                   // model height in metres, measured from the GLB itself
-async function measureHeight(url){
-  try{
-    let buf = await (await fetch(url,{headers:{Range:'bytes=0-262143'}})).arrayBuffer(), dv = new DataView(buf);
-    if(dv.getUint32(0,true)!==0x46546C67) return null;
-    const jl = dv.getUint32(12,true);
-    if(20+jl>buf.byteLength){ buf = await (await fetch(url)).arrayBuffer(); }
-    const j = JSON.parse(new TextDecoder().decode(new Uint8Array(buf,20,jl)));
-    const mul=(a,b)=>{const o=new Array(16).fill(0);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o};
-    const local=n=>{ if(n.matrix) return n.matrix; const [x,y,z,w]=n.rotation||[0,0,0,1],[sx,sy,sz]=n.scale||[1,1,1],[tx,ty,tz]=n.translation||[0,0,0];
-      return [(1-2*(y*y+z*z))*sx,(2*(x*y+z*w))*sx,(2*(x*z-y*w))*sx,0,(2*(x*y-z*w))*sy,(1-2*(x*x+z*z))*sy,(2*(y*z+x*w))*sy,0,(2*(x*z+y*w))*sz,(2*(y*z-x*w))*sz,(1-2*(x*x+y*y))*sz,0,tx,ty,tz,1]; };
-    let lo=Infinity, hi=-Infinity;
-    const walk=(i,pm)=>{ const n=j.nodes[i], m=mul(pm,local(n));
-      if(n.mesh!==undefined) for(const p of j.meshes[n.mesh].primitives){ const a=j.accessors[p.attributes.POSITION];
-        if(a&&a.min&&a.max) for(let q=0;q<8;q++){ const v=[q&1?a.max[0]:a.min[0],q&2?a.max[1]:a.min[1],q&4?a.max[2]:a.min[2]];
-          const yy=m[1]*v[0]+m[5]*v[1]+m[9]*v[2]+m[13]; lo=Math.min(lo,yy); hi=Math.max(hi,yy); } }
-      (n.children||[]).forEach(c=>walk(c,m)); };
-    const I4=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
-    (j.scenes[j.scene||0].nodes||[]).forEach(i=>walk(i,I4));
-    const h=hi-lo; return h>0.001&&isFinite(h)?h:null;
-  }catch(e){ return null; }
-}
+const MODEL = 'cute-capybara.glb';
+// Verified height of the bundled capybara model in metres.
+// Avoid partial HTTP Range requests for the GLB: they can interfere with model loaders.
+const BASE_H = 1.9005935;
+
 const mv = document.getElementById('mv');
 const $ = id => document.getElementById(id);
 const DATA = {
@@ -207,7 +188,10 @@ mv.addEventListener('load', () => {
 });
 mv.addEventListener('error', () => { $('arnote').textContent = 'The model could not be loaded. Make sure cute-capybara.glb sits next to index.html and open the page through a web server, not file://.'; $('bar').hidden = true; });
 render();
-measureHeight(MODEL).then(h=>{ BASE_H = h || FALLBACK_H; mv.src = MODEL; setScale(); window.__baseH = BASE_H; });
+// A new query string also bypasses any previously cached partial GLB response.
+mv.src = MODEL + '?v=2';
+setScale();
+window.__baseH = BASE_H;
 </script>
 </body>
 </html>
